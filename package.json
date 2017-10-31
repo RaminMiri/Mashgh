@@ -1,0 +1,24 @@
+{
+  "name": "mirr16098007",
+  "description": "Script d integration de données des Sources LA ville Montreal vers une base de données MongoDB",
+  "author": "Ramin Miri",
+  "code_permanent": "MIRR16098007",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "dependencies": {
+    "body-parser": "~1.18.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "express": "~4.15.5",
+    "mongodb": "^2.2.33",
+    "morgan": "~1.9.0",
+    "node-schedule": "^1.2.5",
+    "pug": "2.0.0-beta11",
+    "request": "^2.83.0",
+    "serve-favicon": "~2.4.5",
+    "xml2js": "^0.4.19",
+    "xmldom": "latest"
+  }
+}

@@ -9,7 +9,6 @@ var bodyparser = require('body-parser');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 var client_mongo = require ( 'mongodb' ).MongoClient;
-
 //app.use(require('style').middleware(__dirname));
 app.use(express.static(__dirname));
 app.use(bodyparser.json());
@@ -37,9 +36,6 @@ app.use(function(err, req, res, next) {
 
 var imports = require('./app.js');
 
-
-app.listen(3000);
-
 //A2
 var rule = new schedule.RecurrenceRule();
 rule.hour = '*';
@@ -64,3 +60,4 @@ imports.inserer_collections_dans_bd();
 //        }
 //    });
 //});
+app.listen(3000);

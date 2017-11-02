@@ -9,9 +9,10 @@ var bodyParser = require('body-parser');
 var http = require('http');
 var index = require('./routes/index');
 var users = require('./routes/users');
+const csv = require('csvtojson');
 
 var app = express();
-const url1 = "http://donnees.ville.montreal.qc.ca/dataset/4604afb7-a7c4-4626-a3ca-e136158133f2/resource/cbdca706-569e-4b4a-805d-9af73af03b14/download/piscines.csv";
+const url1 = "http://donnees.ville.montreal.qc.ca/dataset/4604afb7-a7c4-4626-a3ca-e136158133f2/resource/cbdca706-569e-4b4a-805d-9af73af03b14/download/piscines.csv"
 const url2 = "http://www2.ville.montreal.qc.ca/services_citoyens/pdf_transfert/L29_PATINOIRE.xml";
 const url3 = "http://www2.ville.montreal.qc.ca/services_citoyens/pdf_transfert/L29_GLISSADE.xml";
 
@@ -29,18 +30,16 @@ var fs 	= require ('fs'),
 var patinoires_json = [],
 	piscines_json = [],
 	glissades_json = [],
-        piscinnesCsv = [],
+        piscinesCsv = [],
         patinoiresXml = [],
         glissadesXml = [];
 
-
-request(url1, function (error, response, body) {
-  console.log('error:', error); // Print the error if one occurred
-  if (response.statusCode >= 200 && response.statusCode < 400) {
-  console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-  piscinnesCsv = body;
-  }
-});
+csv().fromStream(request.get(url1)).on('json',(body)=>{
+    
+    piscines_json = body;
+}).on('done',(err)=>{
+            console.log(err);
+    });
  
  request(url2, function (error, response, body) {
   console.log('error:', error); // Print the error if one occurred
@@ -73,6 +72,14 @@ var inserer_collections_dans_bd  = function (){
 		throw err;
 	}
 	console.log("Connected");
+//        var dbName = 'MIRR16098007';
+//            db.getSiblingDB(dbName).getCollectionNames().forEach(function(collName) {
+//                    if (!collName.startsWith("system.")) {
+//                        console.log("Dropping ["+dbName+"."+collName+"]");
+//                        db[collName].drop();
+//                        
+//    }
+//});
 
 	// Create the collection
 	db.createCollection('patinoire', function(err, collection) {
@@ -83,11 +90,10 @@ var inserer_collections_dans_bd  = function (){
 		console.log("Collection created");
 		collection.insert(patinoires_json, {w: 1}, function(err, doc){
 			if(err) {
-				console.log("Cannot add product in that collection!");
+				console.log("Erreur d\'insertion dans la collection patinoires");
 				throw err;
 			}
-			console.log("Products inserted");
-			// don't forget to close the connexion after use!
+			console.log("Les insertion est fait");
 			db.close();
 		});
 	});
@@ -99,17 +105,32 @@ var inserer_collections_dans_bd  = function (){
 		console.log("Collection created");
 		collection.insert(glissades_json, {w: 1}, function(err, doc){
 			if(err) {
-				console.log("Cannot add product in that collection!");
+				console.log("Erreur d\'insertion dans la collection!");
 				throw err;
 			}
-			console.log("Products inserted");
+			console.log("Insertion avec succes dans la collection");
 			// don't forget to close the connexion after use!
+			db.close();
+		});
+	});
+        db.createCollection('picsines', function(err, collection) {
+		if(err) {
+			console.log("Cannot create the collection!");
+			throw err;
+		}
+		console.log("Collection created");
+		collection.insert(piscines_json, {w: 1}, function(err, doc){
+			if(err) {
+				console.log(piscines_json);
+				throw err;
+			}
+			console.log("Les insertion est fait");
 			db.close();
 		});
 	});
 });
 
-}
+};
 
  //Inserer le JSONObject ´json_object´ dans la collection ´nom_collection´
 //function inserer_collection ( db, nom_collection, json_object ) {

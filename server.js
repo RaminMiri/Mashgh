@@ -12,6 +12,7 @@ var client_mongo = require ( 'mongodb' ).MongoClient;
 //app.use(require('style').middleware(__dirname));
 app.use(express.static(__dirname));
 app.use(bodyparser.json());
+var raml = require('raml2html');
 //app.use('/', index);
 //app.use('/users', users);
 
@@ -40,16 +41,6 @@ var imports = require('./app.js');
 var rule = new schedule.RecurrenceRule();
 rule.hour = '*';
 rule.minute = '*';
-//client_mongo.connect("mongodb://localhost:27017/MIRR16098007", function(err, db) {
-//     var dbName = 'MIRR16098007';
-//            db.getSiblingDB(dbName).getCollectionNames().forEach(function(collName) {
-//                    if (!collName.startsWith("system.")) {
-//                        console.log("Dropping ["+dbName+"."+collName+"]");
-//                        db[collName].drop();
-//                        
-//    }
-//});
-//});
 imports.inserer_collections_dans_bd();
 //schedule.scheduleJob(rule, function() {
 //    imports.inserer_collections_dans_bd(function (err) {
@@ -61,3 +52,16 @@ imports.inserer_collections_dans_bd();
 //    });
 //});
 app.listen(3000);
+//exemples de Jacques Berger INF4375
+app.get('/doc', function (req, res) {
+    //pris des exemples de Jacques Berger INF4375
+    var config = raml.getDefaultConfig(false);
+    var onError = function (err) {
+        console.log(err);
+        res.sendStatus(500);
+    };
+        var onSuccess = function(html) {
+        res.send(html);
+    };
+    raml.render("./route.raml", config).then(onSuccess, onError);
+});

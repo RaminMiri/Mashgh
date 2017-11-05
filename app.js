@@ -6,10 +6,10 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var http = require('http');
 var index = require('./routes/index');
 var users = require('./routes/users');
 const csv = require('csvtojson');
+//var db = require('./db.js');
 
 var app = express();
 const url1 = "http://donnees.ville.montreal.qc.ca/dataset/4604afb7-a7c4-4626-a3ca-e136158133f2/resource/cbdca706-569e-4b4a-805d-9af73af03b14/download/piscines.csv";
@@ -21,7 +21,7 @@ const url3 = "http://www2.ville.montreal.qc.ca/services_citoyens/pdf_transfert/L
  *	Miri Ramin MIRR16098007
  */
 var fs 	= require ('fs'),
-	//xml_dom = require ( 'xmldom' ),
+
         client_mongo = require ( 'mongodb' ).MongoClient,
 	//object_id = require ( 'mongodb' ).ObjectID,
         parseString = require('xml2js').parseString,
@@ -133,24 +133,24 @@ var inserer_collections_dans_bd  = function (){
 };
 
  //Inserer le JSONObject ´json_object´ dans la collection ´nom_collection´
-//function inserer_collection ( db, nom_collection, json_object ) {
-//	db.createCollection ( nom_collection, function ( err, collection ) {
-//		if ( err ) {
-//                    console.log(err);
-//			throw 'Erreur dans la creation de la collecction ' + nom_collection;
-//		}
-//
-//		collection.insert( json_object, { w:1 }, function ( err, result ) {
-//			if ( err ) {
-//                            console.log(err);
-//				throw 'Erreur d\'insertion dans la collection ' + nom_collection;
-//			} else {
-//				console.log ( 'Insertion avec succes dans la collection ' + nom_collection );
-//			}
-//		});
-//	});
-//}
-// 
+function inserer_collection ( db, nom_collection, json_object ) {
+	db.createCollection ( nom_collection, function ( err, collection ) {
+		if ( err ) {
+                    console.log(err);
+			throw 'Erreur dans la creation de la collecction ' + nom_collection;
+		}
+
+		collection.insert( json_object, { w:1 }, function ( err, result ) {
+			if ( err ) {
+                            console.log(err);
+				throw 'Erreur d\'insertion dans la collection ' + nom_collection;
+			} else {
+				console.log ( 'Insertion avec succes dans la collection ' + nom_collection );
+			}
+		});
+	});
+}
+ 
 // //	Inserer les collections ´dossiers´ et ´professionnels´ dans la bd
 // //	Source : https://github.com/Morriar/INF4375-mongodb/blob/master/exercice5.js
 // 

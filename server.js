@@ -38,19 +38,7 @@ app.use(function(err, req, res, next) {
 var imports = require('./app.js');
 
 //A2
-var rule = new schedule.RecurrenceRule();
-rule.hour = '*';
-rule.minute = '*';
-imports.inserer_collections_dans_bd();
-//schedule.scheduleJob(rule, function() {
-//    imports.inserer_collections_dans_bd(function (err) {
-//        if(err) {
-//            console.log(err);
-//        } else {
-//            console.log("Import completed!");
-//        }
-//    });
-//});
+
 app.listen(3000);
 //exemples de Jacques Berger INF4375
 app.get('/doc', function (req, res) {

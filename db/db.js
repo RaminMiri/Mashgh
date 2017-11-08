@@ -22,7 +22,7 @@ module.exports.getConnection = function(callback) {
   if (instanceDB) {
     callback(null, instanceDB);
   } else {
-    var server = new mongodb.Server("localhost", 27017, {auto_reconnect: true});
+    var server = new mongodb.Server("localhost", 27017, {auto_reconnect: true, keepAlive: 300000});
     var db = new mongodb.Db("MIRR16098007", server, {safe: true});
 
     if (!db.openCalled) {
@@ -31,7 +31,7 @@ module.exports.getConnection = function(callback) {
           callback(err);
         }
         instanceDB = db;
-        callback(err, instanceMongoDB);
+        callback(err, instanceDB);
       });
     }
   }

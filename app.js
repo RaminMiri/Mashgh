@@ -9,11 +9,12 @@ var bodyParser = require('body-parser');
 var users = require('./routes/users');
 const csv = require('csvtojson');
 var schedule = require('node-schedule');
-var db = require('./db/db.js');
+var db = require('./db/db');
+var query = require('./db/query');
 var routes = require('./routes/index');
 var app = express();
-var app = express();
 app.use('/', routes);
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -39,15 +40,15 @@ var patinoires_json = "",
         piscinesCsv = [],
         patinoiresXml = [],
         glissadesXml = [];
-
+ var requesting = function (){
 csv().fromStream(request.get(url1)).on('json',(body)=>{
     
     piscines_json.push(body);
-  
+ // sauvegarder_fichier_json(piscines_json,"ram1.csv");
 }).on('done',(err)=>{
             console.log(err);
     });
- 
+
  request(url2, function (error, response, body) {
   console.log('error:', error); // Print the error if one occurred
   if (response.statusCode >= 200 && response.statusCode < 400) {
@@ -56,6 +57,7 @@ csv().fromStream(request.get(url1)).on('json',(body)=>{
     parseString(body, function (err, result) {
     patinoires_json = result.patinoires.patinoire;
     //console.log(patinoires_json);
+   // sauvegarder_fichier_json(patinoires_json,"ram2.json");
     });
    }
 });
@@ -68,33 +70,26 @@ request(url3, function (error, response, body) {
   //console.log('body:', body); // Print the HTML for the Google homepage.
   parseString(body, function (err, result) {
      glissades_json = result.glissades.glissade;
+     //sauvegarder_fichier_json(glissades_json, "ram3.json");
     });
    }
 });
 
+ };
 
 var inserer_collections_dans_bd  = function (){
+   // query.dropp();
      db.getConnection(function(err, db) {
 	if(err) {
 		console.log("Cannot connect to DB!");
+                //db.close();
 		throw err;
 	}
 	console.log("Connected");
- db.listCollections().toArray(function(err, collInfos) {
-             // collInfos is an array of collection info objects that look like:
-             collInfos.forEach(function(collName) {
-                    if (!collName.name) {
-                        console.log(collName.name);
-                        console.log("Dropping ["+collName.name+"]");
-                        db.collName.name.drop();
-                        
-    }
-});
-   
-                });
-
 	// Create the collection
-	db.createCollection('patinoire', function(err, collection) {
+
+		console.log(patinoires_json + "ramim");
+		db.createCollection('patinoire', function(err, collection) {
 		if(err) {
 			console.log("Cannot create the collection!");
 			throw err;
@@ -109,6 +104,7 @@ var inserer_collections_dans_bd  = function (){
 			db.close();
 		});
 	});
+	
         db.createCollection('glissade', function(err, collection) {
 		if(err) {
 			console.log("Cannot create the collection!");
@@ -121,7 +117,6 @@ var inserer_collections_dans_bd  = function (){
 				throw err;
 			}
 			console.log("Insertion avec succes dans la collection");
-			// don't forget to close the connexion after use!
 			db.close();
 		});
 	});
@@ -140,28 +135,13 @@ var inserer_collections_dans_bd  = function (){
 			db.close();
 		});
 	});
+
 });
 
-};
+}
 
  //Inserer le JSONObject ´json_object´ dans la collection ´nom_collection´
-function inserer_collection ( db, nom_collection, json_object ) {
-	db.createCollection ( nom_collection, function ( err, collection ) {
-		if ( err ) {
-                    console.log(err);
-			throw 'Erreur dans la creation de la collecction ' + nom_collection;
-		}
 
-		collection.insert( json_object, { w:1 }, function ( err, result ) {
-			if ( err ) {
-                            console.log(err);
-				throw 'Erreur d\'insertion dans la collection ' + nom_collection;
-			} else {
-				console.log ( 'Insertion avec succes dans la collection ' + nom_collection );
-			}
-		});
-	});
-}
  
 // //	Inserer les collections ´dossiers´ et ´professionnels´ dans la bd
 // //	Source : https://github.com/Morriar/INF4375-mongodb/blob/master/exercice5.js
@@ -199,6 +179,9 @@ function sauvegarder_fichier_json ( data, fichier ) {
 var rule = new schedule.RecurrenceRule();
 rule.hour = '*';
 rule.minute = '*';
+
+query.dropp();
+requesting();
 inserer_collections_dans_bd();
 //schedule.scheduleJob(rule, function() {
 //    inserer_collections_dans_bd(function (err) {

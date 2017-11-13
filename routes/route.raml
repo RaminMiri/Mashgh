@@ -4,26 +4,31 @@ baseUri: http://localhost:3000
 version: 1
 
 /api:
-    /contrevenants:
+    /installations:
         get:
-            description: Obtenir la liste des contrevenants entre deux dates.
+            description: Obtenir la liste des installations par Arrondissement ou par le nome d'installations.
             queryParameters:
-                du:
+                1. arrondissement:
                         description: Une chaîne de caractères qui doit être une
-                                     date de départ respectant ISO8601.
+                                     Non Numerique
                         type: string
                         required: true
-                        example: 2016-01-01
-                au:
+                        example: LaSalle
+                2. nome de l'installation:
                         description: Une chaîne de caractères qui doit être une
-                                     date de fin plus tard que la date de début
-                                     respectant ISO8601.
+                                     Non Numerique
                         type: string
                         required: true
-                        example: 2016-01-02
+                        example: Anneau à patiner  du parc Hayward (PPL)
+                3. La condition de l'installation:
+                        description: Une chaîne de caractères qui doit être une
+                                     Non Numerique
+                        type: string
+                        required: true
+                        example: Mauvaise
             responses:
                 200:
-                    description: La liste des contrevenants a bien été envoyé.
+                    description: La liste des installations a bien été envoyé.
                 500:
                     description: Une erreur interne s'est produite.
     /doc:
@@ -34,25 +39,16 @@ version: 1
                     description: La liste des contrevenants a bien été envoyé.
                 500:
                     description: Une erreur interne s'est produite.
-    /infractions:
-        get:
-            description: Obtenir une liste des établissements avec leur nombre d'infractions en JSON.
+    /glissade:
+        post:
+            description: Modifier une glissade via un objet JSON envoyé.
             responses:
                 200:
                     description: La liste des infractions a bien été envoyée.
                 500:
                     description: Une erreur interne s'est produite.
-    /infractionsxml:
-        get:
-            description: Obtenir une liste des établissements avec leur nombre d'infractions en XML.
-            responses:
-                200:
-                    description: La liste des infractions a bien été envoyée.
-                500:
-                    description: Une erreur interne s'est produite.
-    /infractionscsv:
-        get:
-            description: Obtenir une liste des établissements avec leur nombre d'infractions en CSV.
+        delete:
+            description: supprimer une glissade.
             responses:
                 200:
                     description: La liste des infractions a bien été envoyée.

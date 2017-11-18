@@ -191,7 +191,41 @@ module.exports = {
             console.log('Sauvegardé dans le fichier ' + fichier);
         }
     });
+},
+    supprimeGlissadParId :  function(req, res) {	
+	var id = req.params.id;
+		
+	if (id.length != 24 || id.match(/[0-9a-f]{24}/i) == null) {
+		res.status(400).json({error : "bad request"});
+	} else {
+		db.getConnection(function(err, db) {
+			if (err) {
+				res.status(500).json({error : "can't connect to server"});
+				console.log(getErr.connexion_bd().erreur.red);
+			} else {
+				db.collection('glissade', function(err, collection_glissade) {
+					if (err) {
+						res.status(500).json({error : "collection n'exist pas"});
+					} else {
+						collection_glissade.findOne({ '_id': ObjectId(id) }, function(err, gliss) {
+							if (err || !gliss) {
+							}  else {
+								collection_glissade.findAndRemove({ '_id': ObjectId(id) }, [], function(err, glissade_supprime) {
+									if (err || !glissade_supprime) {
+										res.status(400).json({error : "id n'existe pas"});
+									} else {
+										res.status(200).json(glissade_supprime);
+									}									
+								});
+							}
+						});
+					}
+				});
+			}
+		});
+	}
 }
+
     
 }
 

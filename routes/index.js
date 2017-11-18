@@ -54,6 +54,21 @@ router.get('/installations', function (req, res) {
     }
 });
 
-
+router.delete('/glissade/:id', function(req, res) {
+	var id = req.params.id;
+	 if(arrond != null && arrond != "") {             
+        db.supprimeGlissadParId(id, function (err, data){
+                 if(err) {             
+                res.status(500).json({error:"Internal Server Error"});
+            } else {
+                res.header("Content-Type", "application/json");
+                res.json(data);
+            }   
+                });
+            }else {
+                res.json({error: "Il y a aucune Glissade avec cet Id! Veuillez cherchait à nouveau"});
+ 
+            }
+});
 
 module.exports = router;

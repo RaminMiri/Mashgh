@@ -28,121 +28,119 @@ const url3 = "http://www2.ville.montreal.qc.ca/services_citoyens/pdf_transfert/L
  *	INF4375 
  *	Miri Ramin MIRR16098007
  */
-var fs 	= require ('fs'),
-       
-	//object_id = require ( 'mongodb' ).ObjectID,
+var fs = require('fs'),
+        //object_id = require ( 'mongodb' ).ObjectID,
         parseString = require('xml2js').parseString,
         request = require('request');
 
 var patinoires_json = "",
-	piscines_json = [],
-	glissades_json = "",
+        piscines_json = [],
+        glissades_json = "",
         piscinesCsv = [],
         patinoiresXml = [],
         glissadesXml = [];
- var requesting = function (){
-csv().fromStream(request.get(url1)).on('json',(body)=>{
-    
-    piscines_json.push(body);
- // sauvegarder_fichier_json(piscines_json,"ram1.csv");
-}).on('done',(err)=>{
-            console.log(err);
-    });
 
- request(url2, function (error, response, body) {
-  console.log('error:', error); // Print the error if one occurred
-  if (response.statusCode >= 200 && response.statusCode < 400) {
-  
-  //console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-    parseString(body, function (err, result) {
-    patinoires_json = result.patinoires.patinoire;
-    //console.log(patinoires_json);
-   // sauvegarder_fichier_json(patinoires_json,"ram2.json");
-    });
-   }
+csv().fromStream(request.get(url1)).on('json', (body) => {
+
+    piscines_json.push(body);
+    // sauvegarder_fichier_json(piscines_json,"ram1.csv");
+}).on('done', (err) => {
+    console.log(err);
+    
+    
+});
+
+request(url2, function (error, response, body) {
+    console.log('error:', error); // Print the error if one occurred
+    if (response.statusCode >= 200 && response.statusCode < 400) {
+
+        //console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+        parseString(body, function (err, result) {
+            patinoires_json = result.patinoires.patinoire;
+            //console.log(patinoires_json);
+            // sauvegarder_fichier_json(patinoires_json,"ram2.json");
+        });
+    }
 });
 
 request(url3, function (error, response, body) {
-  console.log('error:', error); // Print the error if one occurred
-  if (response.statusCode >= 200 && response.statusCode < 400) {
-  
-  console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-  //console.log('body:', body); // Print the HTML for the Google homepage.
-  parseString(body, function (err, result) {
-     glissades_json = result.glissades.glissade;
-     //sauvegarder_fichier_json(glissades_json, "ram3.json");
+    console.log('error:', error); // Print the error if one occurred
+    if (response.statusCode >= 200 && response.statusCode < 400) {
+
+        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+        //console.log('body:', body); // Print the HTML for the Google homepage.
+        parseString(body, function (err, result) {
+            glissades_json = result.glissades.glissade;
+            //sauvegarder_fichier_json(glissades_json, "ram3.json");
+        });
+    }
+});
+
+
+var inserer_collections_dans_bd = function () {
+    query.dropp();
+    db.getConnection(function (err, db) {
+        if (err) {
+            console.log("Cannot connect to DB!");
+            //db.close();
+            throw err;
+        }
+        console.log("Connected");
+        // Create the collection
+        db.createCollection('patinoire', function (err, collection) {
+            if (err) {
+                console.log("Cannot create the collection!");
+                throw err;
+            }
+            console.log("Collection created");
+            collection.insert(patinoires_json, {w: 1}, function (err, doc) {
+                if (err) {
+                    console.log("Erreur d\'insertion dans la collection patinoires");
+                    throw err;
+                }
+                console.log("Les insertion est fait");
+
+            });
+        });
+
+        db.createCollection('glissade', function (err, collection) {
+            if (err) {
+                console.log("Cannot create the collection!");
+                throw err;
+            }
+            console.log("Collection created");
+            collection.insert(glissades_json, {w: 1}, function (err, doc) {
+                if (err) {
+                    console.log("Erreur d\'insertion dans la collection glissade!");
+                    throw err;
+                }
+                console.log("Insertion avec succes dans la collection");
+
+            });
+        });
+        db.createCollection('picsines', function (err, collection) {
+            if (err) {
+                console.log("Cannot create the collection!");
+                throw err;
+            }
+            console.log("Collection created");
+            collection.insert(piscines_json, {w: 1}, function (err, doc) {
+                if (err) {
+                    console.log(piscines_json);
+                    throw err;
+                }
+                console.log("Les insertion est fait");
+
+            });
+        });
+
     });
-   }
-});
-
- };
-
-var inserer_collections_dans_bd  = function (){
-   // query.dropp();
-     db.getConnection(function(err, db) {
-	if(err) {
-		console.log("Cannot connect to DB!");
-                //db.close();
-		throw err;
-	}
-	console.log("Connected");
-	// Create the collection
-
-		console.log(patinoires_json + "ramim");
-		db.createCollection('patinoire', function(err, collection) {
-		if(err) {
-			console.log("Cannot create the collection!");
-			throw err;
-		}
-		console.log("Collection created");
-		collection.insert(patinoires_json, {w: 1}, function(err, doc){
-			if(err) {
-				console.log("Erreur d\'insertion dans la collection patinoires");
-				throw err;
-			}
-			console.log("Les insertion est fait");
-			db.close();
-		});
-	});
-	
-        db.createCollection('glissade', function(err, collection) {
-		if(err) {
-			console.log("Cannot create the collection!");
-			throw err;
-		}
-		console.log("Collection created");
-		collection.insert(glissades_json, {w: 1}, function(err, doc){
-			if(err) {
-				console.log("Erreur d\'insertion dans la collection glissade!");
-				throw err;
-			}
-			console.log("Insertion avec succes dans la collection");
-			db.close();
-		});
-	});
-        db.createCollection('picsines', function(err, collection) {
-		if(err) {
-			console.log("Cannot create the collection!");
-			throw err;
-		}
-		console.log("Collection created");
-		collection.insert(piscines_json, {w: 1}, function(err, doc){
-			if(err) {
-				console.log(piscines_json);
-				throw err;
-			}
-			console.log("Les insertion est fait");
-			db.close();
-		});
-	});
-
-});
 
 }
 
- //Inserer le JSONObject ´json_object´ dans la collection ´nom_collection´
+//Inserer le JSONObject ´json_object´ dans la collection ´nom_collection´
 
- 
+
 // //	Inserer les collections ´dossiers´ et ´professionnels´ dans la bd
 // //	Source : https://github.com/Morriar/INF4375-mongodb/blob/master/exercice5.js
 // 
@@ -164,25 +162,22 @@ var inserer_collections_dans_bd  = function (){
 //	});
 //}
 
- //	Sauvegarder le JSONObject ´json_object´ dans le fichier ´fichier´
+//	Sauvegarder le JSONObject ´json_object´ dans le fichier ´fichier´
 //	Utilisé seulement pour le deboguage
- 
-function sauvegarder_fichier_json ( data, fichier ) {
-	fs.writeFile ( fichier, JSON.stringify ( data, null, 4 ), function ( err ) {
-		if ( err ) {
-		  throw 'Erreur en souvegardant dans le fichier' + fichier;
-		} else {
-		  console.log ( 'Sauvegardé dans le fichier ' + fichier );
-		}
-	});
+
+function sauvegarder_fichier_json(data, fichier) {
+    fs.writeFile(fichier, JSON.stringify(data, null, 4), function (err) {
+        if (err) {
+            throw 'Erreur en souvegardant dans le fichier' + fichier;
+        } else {
+            console.log('Sauvegardé dans le fichier ' + fichier);
+        }
+    });
 }
 var rule = new schedule.RecurrenceRule();
 rule.hour = '*';
 rule.minute = '*';
-
-query.dropp();
-requesting();
-inserer_collections_dans_bd();
+//inserer_collections_dans_bd();
 //schedule.scheduleJob(rule, function() {
 //    inserer_collections_dans_bd(function (err) {
 //        if(err) {

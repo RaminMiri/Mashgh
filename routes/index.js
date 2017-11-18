@@ -15,7 +15,6 @@ router.get('/doc', function (req, res) {
     //pris des exemples de Jacques Berger INF4375
     var config = raml.getConfigForTheme('raml2html-default-theme');
     var onError = function (err) {
-        console.log(err);
         res.sendStatus(500);
     };
         var onSuccess = function(html) {
@@ -26,18 +25,18 @@ router.get('/doc', function (req, res) {
 
 router.get('/installations', function (req, res) {
     var arrond = req.query.arrondissement;
-    
-    if(arrond != null ) {
+
+    if(arrond != null && arrond != "") {
         db.getArrondissement(arrond, function (err, data) {
-            if(err) {
-                console.log(err);
-                res.sendStatus(500);
+            if(err) {             
+                res.status(500).json({error:"Internal Server Error"});
             } else {
+                res.header("Content-Type", "application/json");
                 res.json(data);
             }
         });
     } else {
-        res.json([]);
+        res.json({error: "Il Y A AUCUNE INSTALLATION DANS CE QUARTIER! VEULLEZ CHERCHER A NOUVEU"});
     }
 });
 

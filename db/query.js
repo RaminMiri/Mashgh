@@ -3,25 +3,44 @@ var db = require('./db.js');
 
 module.exports = {
     getArrondissement :  function (arrond, res) {
+        var result = [];
         db.getConnection(function(err, db) {
             db.collection('patinoire', function (err, collection) {
                 if (err) {
+                    db.close();
                     console.log(err);
                 } else {
-                    collection.find({$text: { $search : arrond }}).toArray(
-                        function (err, arrondissement) {
-                        if (err) {
-                            
-                            console.log(err);
-                 
-                        } else {
-                            arrondissement.json(arrondissement);
-                            console.log(arrondissement);
-                        }
-                    });
+             var cursor  = collection.find({"arrondissement.nom_arr": { $regex: '.*' + arrond + '.*', $options:'i' }});
+            db.collection('glissade', function (err, collection) {
+                if (err) {
+                    db.close();
+                    console.log(err);
+                } else {
+              cursor  =  collection.find({"arrondissement.nom_arr": { $regex: '.*' + arrond + '.*', $options:'i' }});
+                                
+            db.collection('picsines', function (err, collection) {
+                if (err) {
+                    db.close();
+                    console.log(err);
+                } else {
+                 cursor  = collection.find({"ARRONDISSE": { $regex: '.*' + arrond + '.*', $options:'i' }});
+                 cursor.toArray(function (err, inst){
+                     
+                 for (var i = 0; i < inst.length; i++) {
+                    result.push(inst[i]);                    
+              }    
+                    res(null,result);
+                 });
                 }
             });
+                                
+                }
+            });
+                          
+                }              
+            });            
         });
+        
     },
     inserer_collection : function  (  nom_collection, json_object ) {
 	db.createCollection ( nom_collection, function ( err, collection ) {

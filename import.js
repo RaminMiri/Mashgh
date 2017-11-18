@@ -1,10 +1,16 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-module.exports = function (grunt) {
-    // Project configuration.
-    grunt.initConfig({
+var query = require('./db/query');
+query.dropp(function(err) {
+    if(err) { console.log(err); };
+    insert();
+});
+
+function insert() {
+    query.insertion(function(err) { 
+        if(err) {
+            console.log(err);
+            process.exit(1);
+        } else {
+            process.exit(0);
+        }
     });
-};
+}

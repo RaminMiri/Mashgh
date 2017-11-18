@@ -4,13 +4,27 @@ var db = require('../db/query');
 var mongodb = require('mongodb');
 var raml = require('raml2html');
 var path = require('path');
+var schedule = require('node-schedule');
 const ramlFile = path.join(__dirname, 'route.raml');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
-
+//A2
+var time = new schedule.RecurrenceRule();
+time.hour = '*';
+time.minute = '*';
+schedule.scheduleJob(time, function() {
+    db.insertion(function (err) {
+        if(err) {
+            console.log(err);
+        } else {
+            console.log("Import completed!");
+        }
+    });
+});
+//A3
 router.get('/doc', function (req, res) {
     //pris des exemples de Jacques Berger INF4375
     var config = raml.getConfigForTheme('raml2html-default-theme');
@@ -22,7 +36,7 @@ router.get('/doc', function (req, res) {
     };
     raml.render(ramlFile, config).then(onSuccess, onError);
 });
-
+//A4
 router.get('/installations', function (req, res) {
     var arrond = req.query.arrondissement;
 
@@ -36,8 +50,10 @@ router.get('/installations', function (req, res) {
             }
         });
     } else {
-        res.json({error: "Il Y A AUCUNE INSTALLATION DANS CE QUARTIER! VEULLEZ CHERCHER A NOUVEU"});
+        res.json({error: "Il y a aucune installation dans ce quartier! Veuillez cherchait à nouveau"});
     }
 });
+
+
 
 module.exports = router;

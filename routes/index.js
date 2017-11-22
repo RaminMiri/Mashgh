@@ -1,16 +1,16 @@
 var express = require('express');
 var router = express.Router();
 var db = require('../db/query');
-var mongodb = require('mongodb');
 var raml = require('raml2html');
 var path = require('path');
 var schedule = require('node-schedule');
 const ramlFile = path.join(__dirname, 'route.raml');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-});
+
+///* GET home page. */
+//router.get('/', function(req, res, next) {
+//  res.render('index', { title: 'Express' });
+//});
 //A2
 var time = new schedule.RecurrenceRule();
 time.hour = '*';
@@ -54,6 +54,22 @@ router.get('/installations', function (req, res) {
     }
 });
 
+//A5 + A6
+router.get('/', function (req, res) {
+   var arrond = req.query.arrondissement;
+
+
+        db.getArrondissement(arrond, function (err, data) {
+            if(err) {             
+                res.status(500).json({error:"Internal Server Error"});
+            } else {
+
+                res.render('index', {title: 'Instalations', dd : data});
+            }
+        });
+});
+
+//D2
 router.delete('/glissade/:id', function(req, res) {
 	var id = req.params.id;
 	 if(arrond != null && arrond != "") {             

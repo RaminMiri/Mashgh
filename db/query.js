@@ -20,12 +20,26 @@ module.exports = {
                     console.log(err);
                 } else {
              var cursor  = collection.find({"arrondissement.nom_arr": { $regex: '.*' + arrond + '.*', $options:'i' }});
+             cursor.toArray(function (err, inst){
+                     
+                 for (var i = 0; i < inst.length; i++) {
+                    result.push(inst[i]);                    
+              }    
+                    
+                 });
             db.collection('glissade', function (err, collection) {
                 if (err) {
                     db.close();
                     console.log(err);
                 } else {
               cursor  =  collection.find({"arrondissement.nom_arr": { $regex: '.*' + arrond + '.*', $options:'i' }});
+              cursor.toArray(function (err, inst){
+                     
+                 for (var i = 0; i < inst.length; i++) {
+                    result.push(inst[i]);                    
+              }    
+                    
+                 });
                                 
             db.collection('picsines', function (err, collection) {
                 if (err) {
@@ -192,6 +206,9 @@ module.exports = {
         }
     });
 },
+
+    //getOneInstallations : 
+
     supprimeGlissadParId :  function(req, res) {	
 	var id = req.params.id;
 		

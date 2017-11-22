@@ -1,0 +1,36 @@
+extends layout
+
+block content
+    h1= title
+    button
+        a(href='/modifier_professionnel/#{id}') Modifier le professionnel
+    
+    table#table_professionnel
+        tbody
+            tr
+                th ID
+                td#id
+            tr
+                th Nom
+                td#nom
+            tr
+                th Prenom
+                td#prenom
+            tr
+                th Sexe
+                td#sexe
+            tr
+                th Specialite
+                td#specialite
+            tr
+                th Nombre total visites
+                td#nb_total_visites
+            tr
+                th Nombre total patients
+                td#nb_total_patients
+            tr
+                th Patients en 2014
+                td#patients_2014
+
+    script(src='/javascripts/consulter_professionnel.js')
+    script consulter_professionnel('#{id}');

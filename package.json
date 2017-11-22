@@ -21,6 +21,7 @@
     "raml2html": "^6.4.1",
     "request": "^2.83.0",
     "serve-favicon": "^2.4.5",
+    "stylus": "^0.54.5",
     "xml2js": "^0.4.19",
     "xmldom": "latest"
   }

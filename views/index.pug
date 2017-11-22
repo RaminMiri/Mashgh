@@ -1,5 +1,36 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+    h1= title
+    div#edit(style='width:20%;float:right;')
+    div(style='width:70%;')
+        table
+            tr
+                td
+                    p Entrez l'arrondissement SVP.
+                    table
+                        thead
+                            tr
+                                th
+                                    p Arrondissement
+                                th
+                        tbody
+                            tr
+                                td
+                                    input#arrond(type="text",placeholder="arrondissement", name="arrond", required)
+                                td
+                                    button#btnSubmit(type="submit", onclick="sendParam()") submit
+                                    
+                    table
+                        tbody
+                            th
+                                p Recherche par le nom de Arrondissement:
+                            td
+                                select#ddetb(onchange="sendEtb()")
+                                    each c in dd
+                                        option(value="#{c}") #{c}
+                    
+        
+        div#ctable
+            script(type='text/javascript'  src='/javascripts/data.js')
+            script sendParam();

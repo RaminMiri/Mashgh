@@ -20,7 +20,7 @@ module.exports = {
                     db.close();
                     console.log(err);
                 } else {
-             var cursor  = collection.find({"arrondissement.nom_arr": { $regex: '.*' + arrond + '.*', $options:'i' }});
+             var cursor  = collection.find({"ARRONDISSE": { $regex: '.*' + arrond + '.*', $options:'i' }});
              cursor.toArray(function (err, inst){
                      
                  for (var i = 0; i < inst.length; i++) {
@@ -33,7 +33,7 @@ module.exports = {
                     db.close();
                     console.log(err);
                 } else {
-              cursor  =  collection.find({"arrondissement.nom_arr": { $regex: '.*' + arrond + '.*', $options:'i' }});
+              cursor  =  collection.find({"ARRONDISSE": { $regex: '.*' + arrond + '.*', $options:'i' }});
               cursor.toArray(function (err, inst){
                      
                  for (var i = 0; i < inst.length; i++) {
@@ -175,138 +175,115 @@ module.exports = {
                 });
     },
     
-    UpdateCol : function (res) {
+    insertion: function(res) {
+
+    var patinoires_json = "",
+        piscines_json = [],
+        glissades_json = "";
+
+    request(url2, function(error, response, body) {
+        console.log('error:', error); // Print the error if one occurred
+        if (response.statusCode >= 200 && response.statusCode < 400) {
+
+            //console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+            parseString(body, function(err, result) {
+                patinoires_json = result.patinoires.patinoire;
+
+                if (err) {
+                    res(err);
+                }
                 db.getConnection(function(err, db) {
                     if (err) {
-                        db.close();
+                        console.log("Cannot connect to DB!");
                         res(err);
                     }
-                    db.listCollections().toArray(function(err, collInfos) {
-                       collInfos.forEach(function(collName) {
-                            if (collName.name != null && collName.name != "default" && collName.name != "picsines") {
-                              console.log("ADDING COLS ["+collName.name+"]");
-                              db.collection(collName.name).find().forEach(
-                                function (elem) {
-                                     // update document, using its own properties
-                                     db.collection(collName.name).update(
-                                            { '_id': elem._id},
-                                            { $set: { 'ARRONDISSE': elem.arrondissement[0].nom_arr }}
-                                                    );
-                                        });
-                             // db.collection(collName.name).update({}, {$rename: {'arrondissement.nom_arr': 'ARRONDISSE'}}, true, false);
-                             // res(null);
-                            }else {
-                                res(null);
+
+                    db.createCollection('patinoire', function(err, collection) {
+                        if (err) {
+                            console.log("Cannot create the collection!");
+                            res(err);;
+                        }
+                        console.log("Collection created");
+                        collection.insert(patinoires_json, {w: 1 }, function(err, doc) {
+                            if (err) {
+                                console.log("Erreur d\'insertion dans la collection patinoires");
+                                res(err);
                             }
+                            console.log("Les insertion est fait");
+                            collection.find().forEach(
+                                function(elem) {
+                                    // update document, using its own properties
+                                    collection.update({'_id': elem._id}, { $set: { 'ARRONDISSE': elem.arrondissement[0].nom_arr}});
+                                });    
+                            request(url3, function(error, response, body) {
+                                console.log('error:', error); // Print the error if one occurred
+                                if (response.statusCode >= 200 && response.statusCode < 400) {
+                                    parseString(body, function(err, result) {
+                                        glissades_json = result.glissades.glissade;
+                                        if (err) {
+                                            res(err);
+                                        }
+                                        db.createCollection('glissade', function(err, collection) {
+                                            if (err) {
+                                                console.log("Cannot create the collection!");
+                                                res(err);
+                                            }
+                                            console.log("Collection created");
+                                            collection.insert(glissades_json, {w: 1}, function(err, doc) {
+                                                if (err) {
+                                                    console.log("Erreur d\'insertion dans la collection glissade!");
+                                                    res(err);
+                                                }
+                                                collection.find().forEach(
+                                                    function(elem) {
+                                                        // update document, using its own properties
+                                                        collection.update({
+                                                            '_id': elem._id
+                                                        }, { $set: {'ARRONDISSE': elem.arrondissement[0].nom_arr} });
+                                                    });  
+                                                csv().fromStream(request.get(url1)).on('json', (body) => {
+                                                    //console.log("second");
+
+                                                    piscines_json.push(body);
+                                                }).on('done', (err) => {
+                                                    if (err) {
+                                                        body(err);
+                                                    }
+                                                    console.log("Connected");
+                                                    // Create the collection
+                                                    db.createCollection('picsines', function(err, collection) {
+                                                        if (err) {
+                                                            console.log("Cannot create the collection!");
+                                                            res(err);
+                                                        }
+                                                        console.log("Collection created");
+                                                        collection.insert(piscines_json, { w: 1}, function(err, doc1) {
+                                                            if (err) {
+                                                                res(err);
+                                                            }else {
+                                                            collection.updateMany({}, {$rename:{'NOM':'nom'}}, function(err, doc) {
+                                                                if (err) {
+                                                                res(err);
+                                                            }
+                                                               res(null);
+                                                            });
+                                                        }
+                                                        });
+                                                        
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                }
+                            });
                         });
                     });
                 });
-    },
-    
-    insertion : function (res) {
-        
-        var patinoires_json = "",
-            piscines_json = [],
-            glissades_json = "";
-
-                
-                request(url2, function (error, response, body) {
-                console.log('error:', error); // Print the error if one occurred
-                if (response.statusCode >= 200 && response.statusCode < 400) {
-
-                    //console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-                parseString(body, function (err, result) {
-                     patinoires_json = result.patinoires.patinoire;
-                     
-                     if (err){ res(err);}
-                     console.log("FIRST");
-                        db.getConnection(function (err, db) {
-        if (err) {
-            console.log("Cannot connect to DB!");
-            res(err);
+            });
         }
-
-                     db.createCollection('patinoire', function (err, collection) {
-            if (err) {
-                console.log("Cannot create the collection!");
-                res(err);;
-            }
-            console.log("Collection created");
-            collection.insert(patinoires_json, {w: 1}, function (err, doc) {
-                if (err) {
-                    console.log("Erreur d\'insertion dans la collection patinoires");
-                    res(err);
-                }
-                console.log("Les insertion est fait");
-                collection.find().forEach(
-                                function (elem) {
-                                     // update document, using its own properties
-                                     collection.update(
-                                            { '_id': elem._id},
-                                            { $set: { 'ARRONDISSE': elem.arrondissement[0].nom_arr }}
-                                                    );
-                                        });
-                request(url3, function (error, response, body) {
-    console.log('error:', error); // Print the error if one occurred
-    if (response.statusCode >= 200 && response.statusCode < 400) {
-        parseString(body, function (err, result) {
-            glissades_json = result.glissades.glissade;
-            if (err){res(err);}
-            db.createCollection('glissade', function (err, collection) {
-            if (err) {
-                console.log("Cannot create the collection!");
-                res(err);
-            }
-            console.log("Collection created");
-            collection.insert(glissades_json, {w: 1}, function (err, doc) {
-                if (err) {
-                    console.log("Erreur d\'insertion dans la collection glissade!");
-                    res(err);
-                }
-                collection.find().forEach(
-                                function (elem) {
-                                     // update document, using its own properties
-                                     collection.update(
-                                            { '_id': elem._id},
-                                            { $set: { 'ARRONDISSE': elem.arrondissement[0].nom_arr }}
-                                                    );
-                                        });
-                                csv().fromStream(request.get(url1)).on('json', (body) => {
-                        //console.log("second");
-
-                  piscines_json.push(body);
-                    }).on('done', (err) => {
-                        if (err){
-                       body(err);
-                        }
-                                console.log("Connected");
-        // Create the collection
-                        db.createCollection('picsines', function (err, collection) {
-            if (err) {
-                console.log("Cannot create the collection!");
-                res(err);
-            }
-            console.log("Collection created");
-            collection.insert(piscines_json, {w: 1}, function (err, doc) {
-                if (err) {
-                    res(err);
-                }
-                res(null);
-                
-            }); });  }); });
-        });
-        });
-    }
-});
-
-            });
-            });
-        });
-                    });
-    }
-});
-    },
-    
+    });
+},
     sauvegarder_fichier_json : function (data, fichier) {
     fs.writeFile(fichier, JSON.stringify(data, null, 4), function (err) {
         if (err) {

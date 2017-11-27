@@ -17,20 +17,17 @@ block content
                         tbody
                             tr
                                 td
-                                    input#arrond(type="text",placeholder="arrondissement", name="arrond", required)
+                                    input#arrond(type="text", placeholder="arrondissement")
                                 td
                                     button#btnSubmit(type="submit", onclick="sendParam()") submit
                                     
                     table
                         tbody
-                            th
-                                p Recherche par le nom de Arrondissement:
                             td
-                                select#ddetb(onchange="sendEtb()")
+                                label(for='ddetb') nom d'installation (choisissez 1)
+
+                                select#ddetb(onchange="sendArrond()")
                                     each c in dd
                                         option(value="#{c}") #{c}
-                    
-        
         div#ctable
-            script(type='text/javascript'  src='/javascripts/data.js')
-            script sendParam();
+    

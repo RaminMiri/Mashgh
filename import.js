@@ -14,3 +14,14 @@ function insert() {
         }
     });
 }
+
+function UpdateCol() {
+    query.UpdateCol(function(err) { 
+        if(err) {
+            console.log(err);
+            process.exit(1);
+        } else {
+            process.exit(0);
+        }
+    });
+}

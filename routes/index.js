@@ -69,6 +69,23 @@ router.get('/', function (req, res) {
         });
 });
 
+router.get('/installations', function (req, res) {
+    var instal = req.query.installation;
+
+    if(instal != null ) {
+        db.getInstallation(instal, function (err, data) {
+            if(err) {             
+                res.status(500).json({error:"Internal Server Error"});
+            } else {
+                res.header("Content-Type", "application/json");
+                res.json(data);
+            }
+        });
+    } else {
+        res.json({error: "Il y a aucune installation dans ce quartier! Veuillez cherchait à nouveau"});
+    }
+});
+
 //D2
 router.delete('/glissade/:id', function(req, res) {
 	var id = req.params.id;

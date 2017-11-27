@@ -11,6 +11,7 @@ const url3 = "http://www2.ville.montreal.qc.ca/services_citoyens/pdf_transfert/L
 
 
 module.exports = {
+    
     getArrondissement :  function (arrond, res) {
         var result = [];
         db.getConnection(function(err, db) {
@@ -65,6 +66,77 @@ module.exports = {
         });
         
     },
+    
+    getInstallation: function(instal, res) {
+    var result = [];
+    db.getConnection(function(err, db) {
+        db.collection('patinoire', function(err, collection) {
+            if (err) {
+                db.close();
+                res(err);
+            } else {
+                var cursor = collection.find({
+                    "nom": {
+                        $regex: '.*' + instal + '.*',
+                        $options: 'i'
+                    }
+                });
+                cursor.toArray(function(err, inst) {
+
+                    for (var i = 0; i < inst.length; i++) {
+                        result.push(inst[i]);
+                    }
+
+                });
+                db.collection('glissade', function(err, collection) {
+                    if (err) {
+                        db.close();
+                        res(err);
+                    } else {
+                        cursor = collection.find({
+                            "nom": {
+                                $regex: '.*' + instal + '.*',
+                                $options: 'i'
+                            }
+                        });
+                        cursor.toArray(function(err, inst) {
+
+                            for (var i = 0; i < inst.length; i++) {
+                                result.push(inst[i]);
+                            }
+
+                        });
+
+                        db.collection('picsines', function(err, collection) {
+                            if (err) {
+                                db.close();
+                                res(err);
+                            } else {
+                                cursor = collection.find({
+                                    "NOM": {
+                                        $regex: '.*' + instal + '.*',
+                                        $options: 'i'
+                                    }
+                                });
+                                cursor.toArray(function(err, inst) {
+
+                                    for (var i = 0; i < inst.length; i++) {
+                                        result.push(inst[i]);
+                                    }
+                                    res(null, result);
+                                });
+                            }
+                        });
+
+                    }
+                });
+
+            }
+        });
+    });
+
+},
+    
     inserer_collection : function  (  nom_collection, json_object ) {
 	db.createCollection ( nom_collection, function ( err, collection ) {
 		if ( err ) {
@@ -83,11 +155,10 @@ module.exports = {
 	});
     },
 
-        dropp : function (res) {
+    dropp : function (res) {
                 db.getConnection(function(err, db) {
                     if (err) {
                         db.close();
-                        console.log("inja")
                         res(err);
                     }
                     db.listCollections().toArray(function(err, collInfos) {
@@ -104,40 +175,40 @@ module.exports = {
                 });
     },
     
+    UpdateCol : function (res) {
+                db.getConnection(function(err, db) {
+                    if (err) {
+                        db.close();
+                        res(err);
+                    }
+                    db.listCollections().toArray(function(err, collInfos) {
+                       collInfos.forEach(function(collName) {
+                            if (collName.name != null && collName.name != "default" && collName.name != "picsines") {
+                              console.log("ADDING COLS ["+collName.name+"]");
+                              db.collection(collName.name).find().forEach(
+                                function (elem) {
+                                     // update document, using its own properties
+                                     db.collection(collName.name).update(
+                                            { '_id': elem._id},
+                                            { $set: { 'ARRONDISSE': elem.arrondissement[0].nom_arr }}
+                                                    );
+                                        });
+                             // db.collection(collName.name).update({}, {$rename: {'arrondissement.nom_arr': 'ARRONDISSE'}}, true, false);
+                             // res(null);
+                            }else {
+                                res(null);
+                            }
+                        });
+                    });
+                });
+    },
+    
     insertion : function (res) {
         
         var patinoires_json = "",
             piscines_json = [],
             glissades_json = "";
-                csv().fromStream(request.get(url1)).on('json', (body) => {
-                        //console.log("second");
 
-                  piscines_json.push(body);
-                    }).on('done', (err) => {
-                        if (err){
-                       body(err);
-                        }
-                        console.log("FIRST");
-                        db.getConnection(function (err, db) {
-        if (err) {
-            console.log("Cannot connect to DB!");
-            //db.close();
-            res(err);
-        }
-        console.log("Connected");
-        // Create the collection
-                        db.createCollection('picsines', function (err, collection) {
-            if (err) {
-                console.log("Cannot create the collection!");
-                throw err;
-            }
-            console.log("Collection created");
-            collection.insert(piscines_json, {w: 1}, function (err, doc) {
-                if (err) {
-                    console.log(piscines_json);
-                    res(err);
-                }
-                console.log("Les insertion est fait");
                 
                 request(url2, function (error, response, body) {
                 console.log('error:', error); // Print the error if one occurred
@@ -148,10 +219,17 @@ module.exports = {
                      patinoires_json = result.patinoires.patinoire;
                      
                      if (err){ res(err);}
+                     console.log("FIRST");
+                        db.getConnection(function (err, db) {
+        if (err) {
+            console.log("Cannot connect to DB!");
+            res(err);
+        }
+
                      db.createCollection('patinoire', function (err, collection) {
             if (err) {
                 console.log("Cannot create the collection!");
-                throw err;
+                res(err);;
             }
             console.log("Collection created");
             collection.insert(patinoires_json, {w: 1}, function (err, doc) {
@@ -160,6 +238,14 @@ module.exports = {
                     res(err);
                 }
                 console.log("Les insertion est fait");
+                collection.find().forEach(
+                                function (elem) {
+                                     // update document, using its own properties
+                                     collection.update(
+                                            { '_id': elem._id},
+                                            { $set: { 'ARRONDISSE': elem.arrondissement[0].nom_arr }}
+                                                    );
+                                        });
                 request(url3, function (error, response, body) {
     console.log('error:', error); // Print the error if one occurred
     if (response.statusCode >= 200 && response.statusCode < 400) {
@@ -169,7 +255,7 @@ module.exports = {
             db.createCollection('glissade', function (err, collection) {
             if (err) {
                 console.log("Cannot create the collection!");
-                throw err;
+                res(err);
             }
             console.log("Collection created");
             collection.insert(glissades_json, {w: 1}, function (err, doc) {
@@ -177,24 +263,48 @@ module.exports = {
                     console.log("Erreur d\'insertion dans la collection glissade!");
                     res(err);
                 }
-                    res(null);
-            });
+                collection.find().forEach(
+                                function (elem) {
+                                     // update document, using its own properties
+                                     collection.update(
+                                            { '_id': elem._id},
+                                            { $set: { 'ARRONDISSE': elem.arrondissement[0].nom_arr }}
+                                                    );
+                                        });
+                                csv().fromStream(request.get(url1)).on('json', (body) => {
+                        //console.log("second");
+
+                  piscines_json.push(body);
+                    }).on('done', (err) => {
+                        if (err){
+                       body(err);
+                        }
+                                console.log("Connected");
+        // Create the collection
+                        db.createCollection('picsines', function (err, collection) {
+            if (err) {
+                console.log("Cannot create the collection!");
+                res(err);
+            }
+            console.log("Collection created");
+            collection.insert(piscines_json, {w: 1}, function (err, doc) {
+                if (err) {
+                    res(err);
+                }
+                res(null);
+                
+            }); });  }); });
         });
         });
     }
 });
 
-
+            });
             });
         });
                     });
     }
 });
-
-            });
-        });
-                        });
-                    });
     },
     
     sauvegarder_fichier_json : function (data, fichier) {
@@ -244,5 +354,5 @@ module.exports = {
 }
 
     
-}
+};
 

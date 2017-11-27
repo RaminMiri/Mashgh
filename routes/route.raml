@@ -54,15 +54,15 @@ version: 1
                     description: La liste des infractions a bien été envoyée.
                 500:
                     description: Une erreur interne s'est produite.
-    /modifycv:
+    /modifyEtatGlissade:
         post:
-            description: Modifier un contrevenant via un objet JSON envoyé.
+            description: Modifier l'état d'une glissade via un objet JSON envoyé.
             body:
                 application/json:
-                    schema: !include ../schemas/modifycv.json
+                    schema: !include ../schemas/modifyEtatGlissade.json
             responses:
                 200:
-                    description: La liste des contrevenants a bien été modifié.
+                    description: La liste des glissade a bien été modifié.
                 500:
                     description: Une erreur interne s'est produite.
     /deletecv:

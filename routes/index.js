@@ -59,7 +59,7 @@ router.get('/', function (req, res) {
    var arrond = req.query.arrondissement;
 
 
-        db.getArrondissement(arrond, function (err, data) {
+        db.getInstallation(arrond, function (err, data) {
             if(err) {             
                 res.status(500).json({error:"Internal Server Error"});
             } else {
@@ -77,8 +77,8 @@ router.get('/installations', function (req, res) {
             if(err) {             
                 res.status(500).json({error:"Internal Server Error"});
             } else {
-                res.header("Content-Type", "application/json");
-                res.json(data);
+                //res.header("Content-Type", "application/json");
+                res.render('index', {title: 'Instalations', dd : data});
             }
         });
     } else {

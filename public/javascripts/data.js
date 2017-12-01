@@ -1,13 +1,7 @@
 
-
-//$(document).ready( function sendParam() {
-//    var arrond = $("#arrond").val();
-//    alert('Add it!');
-//    getArrond(arrond); 
-//});
-
 function sendParam() {
     var arrondi = $("#arrond").val();
+    alert(arrondi);
     getArrond(arrondi);  
 }
 
@@ -59,19 +53,37 @@ function renderInstal(list) {
     }
 }
 
-function sendArrond() {
-    var Arond = $("#ddetb").val();
-    getArrond(Arond);
+function sendInstal() {
+    var inst = $("#listder").val();
+    alert(inst);
+    getInstallation(inst);
 }
 
 function getInstallation(inst) {
-    var http = new XMLHttpRequest();
-    http.open("GET", "/installations?installation=" + inst , true);
+    
+        if (window.XMLHttpRequest) { 
+       
+    http = new XMLHttpRequest();
+    } else {if (window.ActiveXObject) { // IE
+    http = new ActiveXObject("Microsoft.XMLHTTP");
+    } else{
+        return false;
+    }
+            }
+    
     http.onreadystatechange = function() {
-        if (http.readyState === 4 && http.status === 200) {
-            var list = JSON.parse(http.responseText);
-            renderCV(list);
+         if (http.readyState === 4) {
+            if (http.status === 200) {
+                document.body.className = 'ok';
+                var list = JSON.parse(http.responseText);
+                renderInstal(list);
+
+        }else {
+            document.body.className = 'error';
         }
+         }
     };
-    http.send();
+    http.open("GET", "/installations?installation=" + inst , true);
+    http.send(null);
+    
 }

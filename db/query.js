@@ -69,6 +69,9 @@ module.exports = {
     
     getInstallation: function(instal, res) {
     var result = [];
+    console.log(instal);
+    if(instal == null)
+        instal= "";
     db.getConnection(function(err, db) {
         db.collection('patinoire', function(err, collection) {
             if (err) {
@@ -113,7 +116,7 @@ module.exports = {
                                 res(err);
                             } else {
                                 cursor = collection.find({
-                                    "NOM": {
+                                    "nom": {
                                         $regex: '.*' + instal + '.*',
                                         $options: 'i'
                                     }
@@ -123,7 +126,7 @@ module.exports = {
                                     for (var i = 0; i < inst.length; i++) {
                                         result.push(inst[i]);
                                     }
-                                    res(null, result);
+                                    res(err, result);
                                 });
                             }
                         });

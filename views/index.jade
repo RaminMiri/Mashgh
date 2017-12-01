@@ -24,10 +24,11 @@ block content
                     table
                         tbody
                             td
-                                label(for='ddetb') nom d'installation (choisissez 1)
-
-                                select#ddetb(onchange="sendArrond()")
+                                form(name="formulaire")
+                                label(for='listder') nom d'installation (choisissez 1)
+                                select#listder(onchange="sendInstal()")
+                                   
                                     each c in dd
-                                        option(value="#{c}") #{c}
+                                        option(value="#{c}") #{c.nom}
         div#ctable
     

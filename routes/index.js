@@ -56,29 +56,26 @@ router.get('/installations', function (req, res) {
 
 //A5 + A6
 router.get('/', function (req, res) {
-   var arrond = req.query.arrondissement;
-
-
-        db.getInstallation(arrond, function (err, data) {
-            if(err) {             
-                res.status(500).json({error:"Internal Server Error"});
-            } else {
-
-                res.render('index', {title: 'Instalations', dd : data});
-            }
-        });
-});
-
-router.get('/installations', function (req, res) {
-    var instal = req.query.installation;
-
-    if(instal != null ) {
+   var instal = req.query.instalation;
         db.getInstallation(instal, function (err, data) {
             if(err) {             
                 res.status(500).json({error:"Internal Server Error"});
             } else {
-                //res.header("Content-Type", "application/json");
-                res.render('index', {title: 'Instalations', dd : data});
+
+                res.render('index', {title: '  les données de la Ville Montréal', dd : data});
+            }
+        });
+});
+
+router.get('/nominstallations', function (req, res) {
+    var instal = req.query.installation;
+
+    if(instal != null ) {
+        db.getInstallation1(instal, function (err, data) {
+            if(err) {             
+                res.status(500).json({error:"Internal Server Error"});
+            } else {
+             res.json(data);
             }
         });
     } else {

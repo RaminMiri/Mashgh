@@ -69,7 +69,61 @@ module.exports = {
     
     getInstallation: function(instal, res) {
     var result = [];
-    console.log(instal);
+    db.getConnection(function(err, db) {
+        db.collection('patinoire', function(err, collection) {
+            if (err) {
+                db.close();
+                res(err);
+            } else {
+                var cursor = collection.find();
+                cursor.toArray(function(err, inst) {
+
+                    for (var i = 0; i < inst.length; i++) {
+                        result.push(inst[i]);
+                    }
+
+                });
+                db.collection('glissade', function(err, collection) {
+                    if (err) {
+                        db.close();
+                        res(err);
+                    } else {
+                        cursor = collection.find();
+                        cursor.toArray(function(err, inst) {
+
+                            for (var i = 0; i < inst.length; i++) {
+                                result.push(inst[i]);
+                            }
+
+                        });
+
+                        db.collection('picsines', function(err, collection) {
+                            if (err) {
+                                db.close();
+                                res(err);
+                            } else {
+                                cursor = collection.find();
+                                cursor.toArray(function(err, inst) {
+
+                                    for (var i = 0; i < inst.length; i++) {
+                                        result.push(inst[i]);
+                                    }
+                                    res(null, result);
+                                });
+                            }
+                        });
+
+                    }
+                });
+
+            }
+        });
+    });
+
+},
+
+getInstallation1: function(instal, res) {
+    var result = [];
     if(instal == null)
         instal= "";
     db.getConnection(function(err, db) {
@@ -79,8 +133,8 @@ module.exports = {
                 res(err);
             } else {
                 var cursor = collection.find({
-                    "nom": {
-                        $regex: '.*' + instal + '.*',
+                    nom: {
+                        $regex: '.*' + instal + '*.',
                         $options: 'i'
                     }
                 });
@@ -97,8 +151,8 @@ module.exports = {
                         res(err);
                     } else {
                         cursor = collection.find({
-                            "nom": {
-                                $regex: '.*' + instal + '.*',
+                            nom: {
+                                $regex: '.*' + instal + '*.',
                                 $options: 'i'
                             }
                         });
@@ -116,8 +170,8 @@ module.exports = {
                                 res(err);
                             } else {
                                 cursor = collection.find({
-                                    "nom": {
-                                        $regex: '.*' + instal + '.*',
+                                    nom: {
+                                        $regex: '.*' + instal + '*.',
                                         $options: 'i'
                                     }
                                 });
@@ -126,7 +180,7 @@ module.exports = {
                                     for (var i = 0; i < inst.length; i++) {
                                         result.push(inst[i]);
                                     }
-                                    res(err, result);
+                                    res(null, result);
                                 });
                             }
                         });
@@ -139,7 +193,7 @@ module.exports = {
     });
 
 },
-    
+   
     inserer_collection : function  (  nom_collection, json_object ) {
 	db.createCollection ( nom_collection, function ( err, collection ) {
 		if ( err ) {

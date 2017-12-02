@@ -1,12 +1,11 @@
 
 function sendParam() {
     var arrondi = $("#arrond").val();
-    alert(arrondi);
     getArrond(arrondi);  
 }
 
 function getArrond(arrond) {
-    
+    var http;
     if (window.XMLHttpRequest) { 
        
     http = new XMLHttpRequest();
@@ -16,7 +15,7 @@ function getArrond(arrond) {
         return false;
 }
     }
-    
+    http.open("GET", "/installations?arrondissement=" + arrond , true);
     http.onreadystatechange = function() {
          if (http.readyState === 4) {
             if (http.status === 200) {
@@ -29,7 +28,6 @@ function getArrond(arrond) {
         }
          }
     };
-    http.open("GET", "/installations?arrondissement=" + arrond , true);
     http.send(null);
 }
 
@@ -54,14 +52,13 @@ function renderInstal(list) {
 }
 
 function sendInstal() {
-    var inst = $("#listder").val();
-    alert(inst);
+    var inst =$("#listder option:selected").text();
     getInstallation(inst);
 }
 
 function getInstallation(inst) {
-    
-        if (window.XMLHttpRequest) { 
+    var http;
+    if (window.XMLHttpRequest) { 
        
     http = new XMLHttpRequest();
     } else {if (window.ActiveXObject) { // IE
@@ -69,8 +66,8 @@ function getInstallation(inst) {
     } else{
         return false;
     }
-            }
-    
+            }   
+    http.open("GET", "/nominstallations?installation=" + inst , true);
     http.onreadystatechange = function() {
          if (http.readyState === 4) {
             if (http.status === 200) {
@@ -83,7 +80,6 @@ function getInstallation(inst) {
         }
          }
     };
-    http.open("GET", "/installations?installation=" + inst , true);
     http.send(null);
     
 }

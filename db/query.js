@@ -122,7 +122,7 @@ module.exports = {
 
 },
 
-getInstallation1: function(instal, res) {
+    getInstallation1: function(instal, res) {
     var result = [];
     if(instal == null)
         instal= "";
@@ -193,6 +193,51 @@ getInstallation1: function(instal, res) {
     });
 
 },
+
+    getCondition : function (etat, res) {
+        
+        var result = [];
+
+    db.getConnection(function(err, db) {
+        db.collection('patinoire', function(err, collection) {
+            if (err) {
+                db.close();
+                res(err);
+            } else {
+                var cursor = collection.find({
+                    condition: 'mauvaise'
+                });
+                cursor.toArray(function(err, inst) {
+
+                    for (var i = 0; i < inst.length; i++) {
+                        result.push(inst[i]);
+                    }
+
+                });
+                db.collection('glissade', function(err, collection) {
+                    if (err) {
+                        db.close();
+                        res(err);
+                    } else {
+                        cursor = collection.find({
+                            condition: 'mauvaise'
+                        });
+                        cursor.toArray(function(err, inst) {
+
+                            for (var i = 0; i < inst.length; i++) {
+                                result.push(inst[i]);
+                            }
+                                res(null, result);
+                        });
+
+                    }
+                });
+
+            }
+        });
+    });
+        
+    },
    
     inserer_collection : function  (  nom_collection, json_object ) {
 	db.createCollection ( nom_collection, function ( err, collection ) {
@@ -341,6 +386,7 @@ getInstallation1: function(instal, res) {
         }
     });
 },
+
     sauvegarder_fichier_json : function (data, fichier) {
     fs.writeFile(fichier, JSON.stringify(data, null, 4), function (err) {
         if (err) {
@@ -351,7 +397,7 @@ getInstallation1: function(instal, res) {
     });
 },
 
-    //getOneInstallations : 
+    //deleteOneInstallations : 
 
     supprimeGlissadParId :  function(req, res) {	
 	var id = req.params.id;

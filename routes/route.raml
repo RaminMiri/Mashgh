@@ -20,12 +20,12 @@ version: 1
                         type: string
                         required: true
                         example: Anneau à patiner  du parc Hayward (PPL)
-                3. La condition de l'installation:
+                3. La condition de l'installation quie sest mauvaise:
                         description: Une chaîne de caractères qui doit être une
                                      Non Numerique
                         type: string
                         required: true
-                        example: Mauvaise
+                        example: /installations/condition/mauvaise
             responses:
                 200:
                     description: La liste des installations a bien été envoyé.
@@ -63,14 +63,6 @@ version: 1
             responses:
                 200:
                     description: La liste des glissade a bien été modifié.
-                500:
-                    description: Une erreur interne s'est produite.
-    /deletecv:
-        delete:
-            description: Supprimer un contrevenant via un Id.
-            responses:
-                200:
-                    description: Le contrevenant a bien été supprimé.
                 500:
                     description: Une erreur interne s'est produite.
     /modifywindow:

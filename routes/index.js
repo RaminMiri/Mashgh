@@ -83,6 +83,21 @@ router.get('/nominstallations', function (req, res) {
     }
 });
 
+router.get('/installations/condition/mauvaise', function (req, res) {
+
+        db.getCondition('mauvaise', function (err, data) {
+            if(err) {             
+                res.status(500).json({error:"Internal Server Error"});
+            } else {
+                res.header("Content-Type", "application/json");
+                res.json(data);
+            }
+        });
+});
+
+
+
+
 //D2
 router.delete('/glissade/:id', function(req, res) {
 	var id = req.params.id;

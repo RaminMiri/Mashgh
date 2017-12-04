@@ -1,15 +1,23 @@
+//source
+//https://stackoverflow.com/questions/8175093/simple-function-to-sort-an-array-of-objects
+
 var mongodb = require('mongodb');
 var db = require('./db.js');
 const csv = require('csvtojson');
 var parseString = require('xml2js').parseString,
-    request = require('request');
-
+    request = require('request'),
+    ObjectId = require('mongodb').ObjectID;
 
 const url1 = "http://donnees.ville.montreal.qc.ca/dataset/4604afb7-a7c4-4626-a3ca-e136158133f2/resource/cbdca706-569e-4b4a-805d-9af73af03b14/download/piscines.csv";
 const url2 = "http://www2.ville.montreal.qc.ca/services_citoyens/pdf_transfert/L29_PATINOIRE.xml";
 const url3 = "http://www2.ville.montreal.qc.ca/services_citoyens/pdf_transfert/L29_GLISSADE.xml";
 
-
+function sortByKey(array, key) {
+    return array.sort(function(a, b) {
+        var x = a[key]; var y = b[key];
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+} 
 module.exports = {
     
     getArrondissement :  function (arrond, res) {
@@ -197,17 +205,14 @@ module.exports = {
     getCondition : function (etat, res) {
         
         var result = [];
-
-    db.getConnection(function(err, db) {
-        db.collection('patinoire', function(err, collection) {
-            if (err) {
-                db.close();
-                res(err);
-            } else {
-                var cursor = collection.find({
-                    condition: 'mauvaise'
-                });
-                cursor.toArray(function(err, inst) {
+        db.getConnection(function(err, db) {
+            db.collection('patinoire', function(err, collection) {
+                if (err) {
+                    db.close();
+                    res(err);
+                } else {
+                    var cursor = collection.find({condition: etat}).sort({nom:1});
+                    cursor.toArray(function(err, inst) {
 
                     for (var i = 0; i < inst.length; i++) {
                         result.push(inst[i]);
@@ -219,15 +224,14 @@ module.exports = {
                         db.close();
                         res(err);
                     } else {
-                        cursor = collection.find({
-                            condition: 'mauvaise'
-                        });
-                        cursor.toArray(function(err, inst) {
+                        cursor = collection.find({ condition: etat}).sort({nom :1});
+                        cursor.sort().toArray(function(err, inst) {
 
                             for (var i = 0; i < inst.length; i++) {
                                 result.push(inst[i]);
                             }
-                                res(null, result);
+                                
+                                res(null, sortByKey(result,'nom'));
                         });
 
                     }
@@ -387,52 +391,40 @@ module.exports = {
     });
 },
 
-    sauvegarder_fichier_json : function (data, fichier) {
-    fs.writeFile(fichier, JSON.stringify(data, null, 4), function (err) {
-        if (err) {
-            throw 'Erreur en souvegardant dans le fichier' + fichier;
-        } else {
-            console.log('Sauvegardé dans le fichier ' + fichier);
-        }
-    });
-},
+//    sauvegarder_fichier_json : function (data, fichier) {
+//    fs.writeFile(fichier, JSON.stringify(data, null, 4), function (err) {
+//        if (err) {
+//            throw 'Erreur en souvegardant dans le fichier' + fichier;
+//        } else {
+//            console.log('Sauvegardé dans le fichier ' + fichier);
+//        }
+//    });
+//},
 
-    //deleteOneInstallations : 
+    //D2 deleteOneInstallationsById : 
 
-    supprimeGlissadParId :  function(req, res) {	
-	var id = req.params.id;
-		
-	if (id.length != 24 || id.match(/[0-9a-f]{24}/i) == null) {
-		res.status(400).json({error : "bad request"});
-	} else {
-		db.getConnection(function(err, db) {
-			if (err) {
-				res.status(500).json({error : "can't connect to server"});
-				console.log(getErr.connexion_bd().erreur.red);
+    supprimeGlissadParId :  function(id, res) {
+        
+	db.getConnection(function(err, db) {
+		db.collection("glissade", function(err, glissade){
+			if(err) {
+				res(err);
 			} else {
-				db.collection('glissade', function(err, collection_glissade) {
-					if (err) {
-						res.status(500).json({error : "collection n'exist pas"});
+				glissade.deleteOne({"_id": ObjectId(id)}, function(err, result) {
+					if(err || !result) {
+						res.status(500);
+						res(err);
 					} else {
-						collection_glissade.findOne({ '_id': ObjectId(id) }, function(err, gliss) {
-							if (err || !gliss) {
-							}  else {
-								collection_glissade.findAndRemove({ '_id': ObjectId(id) }, [], function(err, glissade_supprime) {
-									if (err || !glissade_supprime) {
-										res.status(400).json({error : "id n'existe pas"});
-									} else {
-										res.status(200).json(glissade_supprime);
-									}									
-								});
-							}
-						});
+						res(null);
 					}
 				});
 			}
-		});
-	}
+		})
+	})
 }
-
+		
+	
+ 
     
 };
 

@@ -83,9 +83,9 @@ router.get('/nominstallations', function (req, res) {
     }
 });
 
-router.get('/installations/condition/mauvaise', function (req, res) {
-
-        db.getCondition('mauvaise', function (err, data) {
+router.get('/installations/condition/:etat', function (req, res) {
+        var etat = req.params.etat;
+        db.getCondition(etat, function (err, data) {
             if(err) {             
                 res.status(500).json({error:"Internal Server Error"});
             } else {
@@ -100,8 +100,8 @@ router.get('/installations/condition/mauvaise', function (req, res) {
 
 //D2
 router.delete('/glissade/:id', function(req, res) {
-	var id = req.params.id;
-	 if(arrond != null && arrond != "") {             
+	var id = req.params.id;      
+        console.log(id);
         db.supprimeGlissadParId(id, function (err, data){
                  if(err) {             
                 res.status(500).json({error:"Internal Server Error"});
@@ -110,10 +110,6 @@ router.delete('/glissade/:id', function(req, res) {
                 res.json(data);
             }   
                 });
-            }else {
-                res.json({error: "Il y a aucune Glissade avec cet Id! Veuillez cherchait à nouveau"});
- 
-            }
 });
 
 module.exports = router;

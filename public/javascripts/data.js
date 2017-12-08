@@ -34,14 +34,17 @@ function getArrond(arrond) {
 function renderInstal(list) {
     if(list.length > 0) {
         $("#ctable").html(function() {
-            var render = "<table><thead><tr><th>Instalation</th><th>Arrondissement</th><th>Adresse</th><th>Ouvert</th><th>Condition</th><th>LONG</th><th>LAT</th></tr></thead><tbody>";
+            var render = "<table><thead><tr><th>Instalation</th><th>Arrondissement</th><th>Adresse</th><th>Ouvert</th><th>Condition</th><th>LONG</th><th>LAT</th><th>Update</th><th>Enlever</th></tr></thead><tbody>";
             for (var i = 0; i < list.length; i++) {
-                render += "<tr><td>" + list[i].nom + "</td><td>" 
+                render += "<form><tr><td>" + list[i].nom + "</td><td>" 
                 + list[i].ARRONDISSE +"</td><td>" + list[i].ADRESSE + "</td><td>"
                 + list[i].ouvert + "</td><td>" 
                 + list[i].condition + "</td><td>" 
                 + list[i].LONG + "</td><td>"
-                + list[i].LAT + "</td>";
+                + list[i].LAT + "</td><td><input type='button' class='Modif' id='"
+                + list[i]._id + "'onclick='openModif(this)' value='Modifier'/></td>"
+                + "<td><input  type='button' value='Supprimer' class='Modif' id='" + list[i]._id + "'onclick='deleteInstal(this)'/></td></tr></form>"
+               ;
             }
             render += "</tbody></table>";
             return render;
@@ -82,4 +85,22 @@ function getInstallation(inst) {
     };
     http.send(null);
     
+}
+
+
+
+function openModif(e) {
+  
+   var http = new XMLHttpRequest();
+    http.open("GET", "/switch?id=" + e.id, true);
+            $("#modif").html(http.responseText);
+
+    http.send();
+}
+
+function deleteInstal(e) {
+    var http = new XMLHttpRequest();
+    
+    http.open("DELETE", "/installations" + e.id , true);
+    $("#ctable").html("<tr><td>" + e.id +  " est supprimé</td></tr>");
 }

@@ -6,7 +6,8 @@ var db = require('./db.js');
 const csv = require('csvtojson');
 var parseString = require('xml2js').parseString,
     request = require('request'),
-    ObjectId = require('mongodb').ObjectID;
+    ObjectId = require('mongodb').ObjectID,
+    getErr = require('../err/err');
 
 const url1 = "http://donnees.ville.montreal.qc.ca/dataset/4604afb7-a7c4-4626-a3ca-e136158133f2/resource/cbdca706-569e-4b4a-805d-9af73af03b14/download/piscines.csv";
 const url2 = "http://www2.ville.montreal.qc.ca/services_citoyens/pdf_transfert/L29_PATINOIRE.xml";
@@ -111,6 +112,61 @@ module.exports = {
                                 res(err);
                             } else {
                                 cursor = collection.find();
+                                cursor.toArray(function(err, inst) {
+
+                                    for (var i = 0; i < inst.length; i++) {
+                                        result.push(inst[i]);
+                                    }
+                                    res(null, result);
+                                });
+                            }
+                        });
+
+                    }
+                });
+
+            }
+        });
+    });
+
+},
+
+    getInstallationParId: function(id, res) {
+    var result = [];
+    db.getConnection(function(err, db) {
+        db.collection('patinoire', function(err, collection) {
+            if (err) {
+                db.close();
+                res(err);
+            } else {
+                var cursor = collection.find({_id: ObjectId(id)});
+                cursor.toArray(function(err, inst) {
+
+                    for (var i = 0; i < inst.length; i++) {
+                        result.push(inst[i]);
+                    }
+
+                });
+                db.collection('glissade', function(err, collection) {
+                    if (err) {
+                        db.close();
+                        res(err);
+                    } else {
+                        cursor = collection.find({_id: ObjectId(id)});
+                        cursor.toArray(function(err, inst) {
+
+                            for (var i = 0; i < inst.length; i++) {
+                                result.push(inst[i]);
+                            }
+
+                        });
+
+                        db.collection('picsines', function(err, collection) {
+                            if (err) {
+                                db.close();
+                                res(err);
+                            } else {
+                                cursor = collection.find({_id: ObjectId(id) });
                                 cursor.toArray(function(err, inst) {
 
                                     for (var i = 0; i < inst.length; i++) {
@@ -391,26 +447,47 @@ module.exports = {
     });
 },
 
-//    sauvegarder_fichier_json : function (data, fichier) {
-//    fs.writeFile(fichier, JSON.stringify(data, null, 4), function (err) {
-//        if (err) {
-//            throw 'Erreur en souvegardant dans le fichier' + fichier;
-//        } else {
-//            console.log('Sauvegardé dans le fichier ' + fichier);
-//        }
-//    });
-//},
+//D1
+
+    modifierGlissadParId : function(req, res){
+        var id = req.body._id; 
+        var glissade_json = req.body;
+        console.log(glissade_json);
+        db.getConnection(function(err, db) {
+			if (err) {
+				res.status(500).json(getErr.connexion_bd());
+				console.log(getErr.connexion_bd().erreur.red);
+			} else {
+				db.collection('glissade', function(err, collection) {
+					if (err) {
+						res.status(500).json(getErr.collection('glissade'));
+						console.log(getErr.collection('glissade').erreur.red);
+					} else {
+						collection.findAndModify({ '_id': ObjectId(id) }, [], { $set: glissade_json }, { new:true }, function(err, body) {
+							if (err || !body) {
+								//res.status(400).json(getErr.insert('glissade'));
+								console.log(getErr.insert('glissade').erreur.red);
+							} else {
+								res.status(200).json(body);
+							}
+						});
+					}
+				});
+			}
+		});
+        
+    },
 
     //D2 deleteOneInstallationsById : 
 
-    supprimeGlissadParId :  function(id, res) {
+    supprimeInstalParId :  function(inst, id, res) {
         
 	db.getConnection(function(err, db) {
-		db.collection("glissade", function(err, glissade){
+		db.collection(inst, function(err, collection){
 			if(err) {
 				res(err);
 			} else {
-				glissade.deleteOne({"_id": ObjectId(id)}, function(err, result) {
+				collection.deleteOne({"_id": ObjectId(id)}, function(err, result) {
 					if(err || !result) {
 						res.status(500);
 						res(err);

@@ -15,6 +15,7 @@
     "express": "~4.15.5",
     "install": "^0.10.1",
     "jade": "^1.11.0",
+    "jsonschema": "^1.2.0",
     "mongodb": "^2.2.33",
     "node-schedule": "^1.2.5",
     "npm": "^5.5.1",

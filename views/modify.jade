@@ -1,0 +1,52 @@
+block content
+    table
+        h3 #{contrevenant._id}
+        tbody
+            tr
+                td
+                    p Proprietaire:
+                td
+                    input#proprietaire(type="text" value="#{contrevenant.proprietaire}")
+            tr
+                td
+                    p Categorie:
+                td
+                    input#categorie(type="text" value="#{contrevenant.categorie}")
+            tr
+                td
+                    p Etablissement:
+                td
+                    input#etablissement(type="text" value="#{contrevenant.etablissement}")
+            tr
+                td
+                    p Adresse:
+                td
+                    input#adresse(type="text" value="#{contrevenant.adresse}")
+            tr
+                td
+                    p Ville:
+                td
+                    input#ville(type="text" value="#{contrevenant.ville}")
+            tr
+                td
+                    p Description:
+                td
+                    input#description(type="text" value="#{contrevenant.description}")
+            tr
+                td
+                    p Date infraction:
+                td
+                    input#date_infraction(type="text" value="#{contrevenant.date_infraction.toLocaleDateString()}")
+            tr
+                td
+                    p Date jugement:
+                td
+                    input#date_jugement(type="text" value="#{contrevenant.date_jugement.toLocaleDateString()}")
+            tr
+                td
+                    p Montant:
+                td
+                    input#montant(type="text" value="#{contrevenant.montant}")
+            tr
+                td
+                    button(onclick="modifyCV('#{contrevenant._id}')") Envoyer

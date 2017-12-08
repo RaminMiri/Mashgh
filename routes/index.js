@@ -5,7 +5,9 @@ var raml = require('raml2html');
 var path = require('path');
 var schedule = require('node-schedule');
 const ramlFile = path.join(__dirname, 'route.raml');
-
+var jsonschema = require('jsonschema');
+var schemas = require('../schemas/modifGlissade'); 
+var getErr = require('../err/err');
 
 ///* GET home page. */
 //router.get('/', function(req, res, next) {
@@ -63,6 +65,7 @@ router.get('/', function (req, res) {
             } else {
 
                 res.render('index', {title: '  les données de la Ville Montréal', dd : data});
+                res.end();
             }
         });
 });
@@ -95,21 +98,52 @@ router.get('/installations/condition/:etat', function (req, res) {
         });
 });
 
+//D1
+router.put('/installations/glissade', function(req, res) {
+        var body = req.body._id ;
 
+        var result = jsonschema.validate(req.body, schemas.modifyGlissade);
+        if(result.errors.length > 0) {
+        var err = getErr.json();
+		err.erreures_validation = result.errors;
+		res.status(400).json(result);
+    } else {
+        db.modifierGlissadParId( body, function (err, data) {
+            if(err) {
+                res.status(400).json(getErr.insert('glissade'));
+            } else {
+                res.status(200).json(req.body);
+            }
+        });
+    }
+});
 
 
 //D2
-router.delete('/glissade/:id', function(req, res) {
-	var id = req.params.id;      
-        console.log(id);
-        db.supprimeGlissadParId(id, function (err, data){
+router.delete('/installations', function(req, res) {
+	var id = req.query.id; 
+        var inst = req.query.installation;
+        
+        db.supprimeInstalParId(inst, id, function (err, data){
                  if(err) {             
-                res.status(500).json({error:"Internal Server Error"});
+                res.status(500).json({error:id+" N'existe pas"});
             } else {
                 res.header("Content-Type", "application/json");
-                res.json(data);
+                res.json({confirmation: id + " est supprime"});
             }   
                 });
+});
+
+//D3
+router.get('/switch', function (req, res) {
+    var id = req.query.id;
+    db.getInstallationParId(id, function (err, data) {
+        if(err || data.length == 0) {
+        res.status(500).json(getErr.service('GET','/switch' ));
+        } else {
+            res.render('modify', {contrevenant : data[0]});
+        }
+    });
 });
 
 module.exports = router;

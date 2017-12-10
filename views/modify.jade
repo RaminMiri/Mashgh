@@ -1,37 +1,38 @@
 block content
     table
-        h3 #{contrevenant._id}
+        h3#{installations._id}
+         - console.log(!{installations})
         tbody
             tr
                 td
-                    p Proprietaire:
+                    p Type:
                 td
-                    input#proprietaire(type="text" value="#{contrevenant.proprietaire}")
+                    input#TYPE(type="text" value="#{installations.Instalation}")
             tr
                 td
-                    p Categorie:
+                    p Arrondissement:
                 td
-                    input#categorie(type="text" value="#{contrevenant.categorie}")
-            tr
-                td
-                    p Etablissement:
-                td
-                    input#etablissement(type="text" value="#{contrevenant.etablissement}")
+                    input#ARRONDISSE(type="text" value="#{installations.ARRONDISSE}")
             tr
                 td
                     p Adresse:
                 td
-                    input#adresse(type="text" value="#{contrevenant.adresse}")
+                    input#ADRESSE(type="text" value="#{installations.ADRESSE}")
+            tr
+                td
+                    p Condition:
+                td
+                    input#condition(type="text" value="#{installations.condition}")
             tr
                 td
                     p Ville:
                 td
-                    input#ville(type="text" value="#{contrevenant.ville}")
+                    input#ville(type="text" value="#{installations.ville}")
             tr
                 td
                     p Description:
                 td
-                    input#description(type="text" value="#{contrevenant.description}")
+                    input#description(type="text" value="#{installations.description}")
             tr
                 td
                     p Date infraction:

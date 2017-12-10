@@ -15,14 +15,17 @@ var app = express();
 app.use(express.static(__dirname));
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.set(path.join(__dirname, 'routes'));
 app.set('view engine', 'jade');
 app.use(function(req,res,next){
     req.db = db;
     next();
 });
+
 app.use('/', routes);
 app.use('/users', users);
 app.use(bodyParser.json({type: 'application/json'}));
+
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

@@ -65,12 +65,17 @@ version: 1
                     description: La liste des glissade a bien été modifié.
                 500:
                     description: Une erreur interne s'est produite.
-    /modifywindow:
+    /switch:
         get:
-            description: Retourne un formulaire HTML pour la modification d'un contrevenant.
+            description: Retourne un formulaire HTML pour la modification d'un Installation.
             queryParameters:
+                Type:
+                    description: Le Type d'installation à modifier. 
+                    type: string
+                    required: true
+                    example: glissade
                 id:
-                    description: Le Id 24hex du contrevenant à modifier.
+                    description: Le Id 24hex du Installation à modifier.
                     type: string
                     required: true
                     example: 5849f3d90296ed13a87632b8
@@ -79,11 +84,11 @@ version: 1
                     description: Le formulaire a bien été envoyé.
                 500:
                     description: Une erreur interne s'est produite.
-    /etablissement:
+    /installation:
         get:
-            description: Obtenir les contrevenants par un établissement.
+            description: Obtenir les installation par son nom.
             responses:
                 200:
-                    description: La liste des contrevenants a bien été envoyé.
+                    description: La liste des installations a bien été envoyé.
                 500:
                     description: Une erreur interne s'est produite.

@@ -2,12 +2,14 @@ var express = require('express');
 var router = express.Router();
 var db = require('../db/query');
 var raml = require('raml2html');
+var csv = require('json2csv');
 var path = require('path');
 var schedule = require('node-schedule');
 const ramlFile = path.join(__dirname, 'route.raml');
 var jsonschema = require('jsonschema');
 var schemas = require('../schemas/modifGlissade'); 
 var getErr = require('../err/err');
+var xml = require('json2xml');
 
 ///* GET home page. */
 //router.get('/', function(req, res, next) {
@@ -65,10 +67,10 @@ router.get('/', function (req, res) {
             } else {
 
                 res.render('index', {title: '  les données de la Ville Montréal', dd : data});
-                res.end();
             }
         });
 });
+
 
 router.get('/nominstallations', function (req, res) {
     var instal = req.query.installation;
@@ -86,6 +88,7 @@ router.get('/nominstallations', function (req, res) {
     }
 });
 
+//c1
 router.get('/installations/condition/:etat', function (req, res) {
         var etat = req.params.etat;
         db.getCondition(etat, function (err, data) {
@@ -97,6 +100,52 @@ router.get('/installations/condition/:etat', function (req, res) {
             }
         });
 });
+
+//c2
+router.get('/installationsxml/condition/:etat', function (req, res) {
+        var etat = req.params.etat;
+        db.getCondition(etat, function (err, data) {
+            if(err) {             
+                res.status(500).json({error:"Internal Server Error"});
+            } else {
+                console.log(data.length);
+                for (var i = 0; i < data.length; i++) {
+                data[i] = {installation : data[i]};
+            }
+            var options = {
+                escape : true,
+                xmlHeader : true
+            };
+            var doc = xml({installations : data}, options);
+            res.set('Content-Type', 'text/xml; charset=utf-8');
+            res.send(doc);
+            }
+        });
+});
+
+//c3
+router.get('/installationscsv/condition/:etat', function (req, res) {
+        var etat = req.params.etat;
+        db.getCondition(etat, function (err, data) {
+            if(err) {             
+                res.status(500).json({error:"Internal Server Error"});
+            } else {
+                for (var i = 0; i < data.length; i++) {
+                data[i] = {installation : data[i]};
+            }
+            var fields = ['_id','nom', 'arrondissement', 'ouvert','deblay', 'arrose', 'resurface','condition','ARRONDISSE','instalation']
+             csv({ data : data, fields: fields}, function(err,doc){
+                if (err){
+                    console.log(err);
+                } else{
+                    res.send(doc);
+                }
+             });
+            
+            }
+        });
+});
+
 
 //D1
 router.put('/installations/glissade', function(req, res) {
@@ -120,12 +169,11 @@ router.put('/installations/glissade', function(req, res) {
 
 
 //D2
-router.delete('/installations', function(req, res) {
-	var id = req.query.id; 
-        var inst = req.query.installation;
-        
+router.delete('/installations/:installation/:id', function(req, res) {
+	var id = req.params.id; 
+        var inst = req.params.installation;
         db.supprimeInstalParId(inst, id, function (err, data){
-                 if(err) {             
+                 if(err || data.length == 0) {             
                 res.status(500).json({error:id+" N'existe pas"});
             } else {
                 res.header("Content-Type", "application/json");
@@ -141,9 +189,11 @@ router.get('/switch', function (req, res) {
         if(err || data.length == 0) {
         res.status(500).json(getErr.service('GET','/switch' ));
         } else {
-            res.render('modify', {contrevenant : data[0]});
+            res.render('modify', {installations : data[0]});
         }
     });
+    
 });
+
 
 module.exports = router;

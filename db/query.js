@@ -260,16 +260,16 @@ module.exports = {
 
     getCondition : function (etat, res) {
         
-        var result = [];
         db.getConnection(function(err, db) {
             db.collection('patinoire', function(err, collection) {
                 if (err) {
                     db.close();
                     res(err);
                 } else {
-                    var cursor = collection.find({condition: etat}).sort({nom:1});
+                    var cursor = collection.find({condition: { $regex: '.*' + etat + '.*', $options:'i' }}).sort({nom:1});
+                    var result = [];
                     cursor.toArray(function(err, inst) {
-
+                         
                     for (var i = 0; i < inst.length; i++) {
                         result.push(inst[i]);
                     }
@@ -278,9 +278,9 @@ module.exports = {
                 db.collection('glissade', function(err, collection) {
                     if (err) {
                         db.close();
-                        res(err);
+                        res(err,[]);
                     } else {
-                        cursor = collection.find({ condition: etat}).sort({nom :1});
+                        cursor = collection.find({ condition: { $regex: '.*' + etat + '.*', $options:'i' }}).sort({nom :1});
                         cursor.sort().toArray(function(err, inst) {
 
                             for (var i = 0; i < inst.length; i++) {
@@ -371,11 +371,12 @@ module.exports = {
                                 console.log("Erreur d\'insertion dans la collection patinoires");
                                 res(err);
                             }
+                           // collection.updateMany({}, {"$set": {"Instalation":"Patinoire"}});
                             console.log("Les insertion est fait");
                             collection.find().forEach(
                                 function(elem) {
                                     // update document, using its own properties
-                                    collection.update({'_id': elem._id}, { $set: { 'ARRONDISSE': elem.arrondissement[0].nom_arr}});
+                                    collection.update({'_id': elem._id}, { $set: { 'ARRONDISSE': elem.arrondissement[0].nom_arr, 'Instalation':'patinoire'}});
                                 });    
                             request(url3, function(error, response, body) {
                                 console.log('error:', error); // Print the error if one occurred
@@ -401,7 +402,7 @@ module.exports = {
                                                         // update document, using its own properties
                                                         collection.update({
                                                             '_id': elem._id
-                                                        }, { $set: {'ARRONDISSE': elem.arrondissement[0].nom_arr} });
+                                                        }, { $set: {'ARRONDISSE': elem.arrondissement[0].nom_arr , 'Instalation':'glissade'} });
                                                     });  
                                                 csv().fromStream(request.get(url1)).on('json', (body) => {
                                                     //console.log("second");
@@ -423,7 +424,7 @@ module.exports = {
                                                             if (err) {
                                                                 res(err);
                                                             }else {
-                                                            collection.updateMany({}, {$rename:{'NOM':'nom'}}, function(err, doc) {
+                                                            collection.updateMany({}, {$rename:{'NOM':'nom'}, $set : {'Installation':'picsines'} }, function(err, doc) {
                                                                 if (err) {
                                                                 res(err);
                                                             }
@@ -481,18 +482,18 @@ module.exports = {
     //D2 deleteOneInstallationsById : 
 
     supprimeInstalParId :  function(inst, id, res) {
-        
+
 	db.getConnection(function(err, db) {
 		db.collection(inst, function(err, collection){
 			if(err) {
 				res(err);
 			} else {
 				collection.deleteOne({"_id": ObjectId(id)}, function(err, result) {
-					if(err || !result) {
-						res.status(500);
-						res(err);
+                                    
+					if(err || result.result.n == 0) {
+						res(500);
 					} else {
-						res(null);
+						res(null,result);
 					}
 				});
 			}

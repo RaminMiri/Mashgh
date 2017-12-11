@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "body-parser": "^1.18.2",
-    "cookie-parser": "~1.4.3",
     "csvtojson": "^1.1.9",
     "debug": "~2.6.9",
     "express": "~4.15.5",
@@ -23,8 +22,6 @@
     "npm": "^5.5.1",
     "pug": "2.0.0-beta11",
     "raml2html": "^6.4.1",
-    "request": "^2.83.0",
-    "serve-favicon": "^2.4.5",
-    "stylus": "^0.54.5"
+    "request": "^2.83.0"
   }
 }

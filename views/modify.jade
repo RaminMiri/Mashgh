@@ -1,3 +1,4 @@
+    extends layout
 block content
     table
         h3#{installations._id}
@@ -23,31 +24,6 @@ block content
                     p Condition:
                 td
                     input#condition(type="text" value="#{installations.condition}")
-            tr
-                td
-                    p Ville:
-                td
-                    input#ville(type="text" value="#{installations.ville}")
-            tr
-                td
-                    p Description:
-                td
-                    input#description(type="text" value="#{installations.description}")
-            tr
-                td
-                    p Date infraction:
-                td
-                    input#date_infraction(type="text" value="#{contrevenant.date_infraction.toLocaleDateString()}")
-            tr
-                td
-                    p Date jugement:
-                td
-                    input#date_jugement(type="text" value="#{contrevenant.date_jugement.toLocaleDateString()}")
-            tr
-                td
-                    p Montant:
-                td
-                    input#montant(type="text" value="#{contrevenant.montant}")
             tr
                 td
                     button(onclick="modifyCV('#{contrevenant._id}')") Envoyer
